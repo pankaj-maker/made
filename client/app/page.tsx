@@ -1,17 +1,11 @@
 "use client";
-import {HeroUIProvider} from "@heroui/react";
+import { HeroUIProvider } from "@heroui/react";
 import Emoji from "../components/Emoji";
-\
-
 
 export default function App() {
-
-
-  
- 
   return (
     <HeroUIProvider>
-     <Emoji />
+      <Emoji />
     </HeroUIProvider>
   );
 }
