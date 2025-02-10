@@ -55,6 +55,7 @@ function Inputs() {
         value={input}
         onChange={(e) => setInput(e.target.value)}
         autoComplete="off"
+        accept="image/*"
       />
 
       <input
