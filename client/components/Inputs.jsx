@@ -2,34 +2,34 @@ import React, { useRef, useState } from "react";
 import { Button, Input } from "@heroui/react";
 import { SendHorizontalIcon, UploadIcon } from "lucide-react";
 
-function Inputs() {
+function Inputs({ socket, name, setMessages }) {
   const [input, setInput] = useState("");
   const inputUpload = useRef(null);
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
-    if (
-      file.type === "image/png" ||
-      file.type === "image/jpeg" ||
-      file.type === "image/webp"
-    ) {
-      console.log("Image is supported!");
-      console.log(file);
 
-      const reader = new FileReader();
+    const reader = new FileReader();
 
-      reader.onloadend = function () {
-        // Here is the Base64 string
-        const base64String = reader.result;
-        console.log(base64String); // Base64 URI
+    reader.onloadend = function () {
+      // Here is the Base64 string
+      const base64String = reader.result;
+
+      const msg = {
+        type: "image",
+        content: base64String,
+        user: {
+          id: socket.id,
+          name: name,
+        },
       };
 
-      if (file) {
-        reader.readAsDataURL(file); // Converts image to base64 URI
-      }
+      socket.emit("message", msg);
+      setMessages((prevState) => [...prevState, msg]);
+    };
 
-      // const url = URL.createObjectURL(file);
-      // console.log(url);
+    if (file) {
+      reader.readAsDataURL(file); // Converts image to base64 URI
     }
   };
 
@@ -39,14 +39,25 @@ function Inputs() {
     if (!input) {
       inputUpload.current.click();
     } else {
-      console.log(input);
+      const msg = {
+        type: input.startsWith("http") ? "link" : "text",
+        content: input,
+        user: {
+          id: socket.id,
+          name: name,
+        },
+      };
+
+      socket.emit("message", msg);
+      setMessages((prevState) => [...prevState, msg]);
+
       setInput("");
     }
   };
 
   return (
     <form
-      className="absolute bottom-0 left-0 w-full sm:mb-5 flex sm:gap-1"
+      className="absolute bottom-0  w-full max-w-6xl left-1/2 -translate-x-1/2 sm:mb-5 flex sm:gap-1"
       onSubmit={handleSubmit}
     >
       <Input
@@ -55,7 +66,6 @@ function Inputs() {
         value={input}
         onChange={(e) => setInput(e.target.value)}
         autoComplete="off"
-        accept="image/*"
       />
 
       <input
@@ -63,6 +73,7 @@ function Inputs() {
         name="file"
         ref={inputUpload}
         hidden
+        accept="image/png, image/jpeg"
         onChange={handleFileUpload}
       />
 
